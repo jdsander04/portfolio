@@ -1,0 +1,144 @@
+---
+import { Image } from "astro:assets";
+import bgImage from "../assets/image.png";
+---
+
+<div class="scroll-container">
+  <div class="parallax-bg">
+    <Image src={bgImage} alt="Background" class="bg-img" />
+  </div>
+
+  <div class="scroll-wrapper">
+    <slot />
+  </div>
+</div>
+
+<style>
+  /* Core Layout */
+  .scroll-container {
+    position: relative;
+    width: 100%;
+    height: 100vh;
+    overflow: hidden;
+    background-color: #000;
+  }
+
+  .parallax-bg {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 150vw; /* Wider for movement */
+    height: 100vh;
+    z-index: -1;
+    will-change: transform;
+  }
+
+  .bg-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transform: scale(1.2); /* Prevents edge artifacts */
+  }
+
+  .scroll-wrapper {
+    display: flex;
+    height: 100vh;
+    width: fit-content;
+    will-change: transform;
+  }
+
+  /* Target slots that are passed as .scroll-section */
+  :global(.scroll-section) {
+    width: 100vw;
+    height: 100vh;
+    flex-shrink: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: white;
+  }
+</style>
+
+<script>
+  import { gsap } from "gsap";
+  import { ScrollTrigger } from "gsap/ScrollTrigger";
+
+  gsap.registerPlugin(ScrollTrigger);
+
+  // Use a 'load' event to ensure all images and slots are rendered
+  window.addEventListener("load", () => {
+    const panels = gsap.utils.toArray(".scroll-section");
+    const bg = document.querySelector(".parallax-bg");
+    const wrapper = document.querySelector(".scroll-wrapper");
+
+    if (panels.length > 0) {
+      // Create the main timeline
+      const mainTl = gsap.timeline({
+        scrollTrigger: {
+          trigger: ".scroll-container",
+          pin: true,
+          scrub: 1,
+          // 3000px of scroll effort per panel to prevent 'shooting past'
+          end: () => "+=" + panels.length * 3000,
+          invalidateOnRefresh: true, // Forces recalculation on resize
+        },
+      });
+
+      panels.forEach((panel: Element, i) => {
+        // Move Phase (Slide into view)
+        if (i > 0) {
+          mainTl.to(wrapper, {
+            // Using x: () => ... ensures it calculates the width of the actual DOM elements
+            x: () => -(window.innerWidth * i),
+            duration: 1,
+            ease: "power2.inOut",
+          });
+
+          // Sync Background Move
+          mainTl.to(
+            bg,
+            {
+              xPercent: -(i * 5),
+              duration: 1,
+              ease: "power2.inOut",
+            },
+            "<",
+          );
+        }
+
+        const scrollableContent = panel.querySelector(".scrollable-content");
+
+        if (scrollableContent) {
+          // Calculate overflow
+          const contentHeight = scrollableContent.scrollHeight;
+          const windowHeight = window.innerHeight;
+          const overflow = contentHeight - windowHeight;
+
+          console.log(`Panel ${i} overflow: ${overflow}`);
+
+          if (overflow > 0) {
+            // Add vertical scroll animation
+            // We add extra padding to the calculation to ensure bottom is fully visible
+            const scrollDistance = overflow + 100; // 100px buffer
+
+            mainTl.to(scrollableContent, {
+              y: -scrollDistance,
+              ease: "none", // Linear scroll feels more natural here
+              duration: scrollDistance / 500, // Adjust speed: pixels per second multiplier roughly
+            });
+          } else {
+            // No overflow, just pause briefly
+            mainTl.to({}, { duration: 2 });
+          }
+        } else {
+          // Pause Phase (Stay on current section)
+          // Increase duration to 2 or 3 if you want the pause to feel even longer
+          mainTl.to({}, { duration: 2 });
+        }
+      });
+
+      // Refresh ScrollTrigger to ensure all positions are correct
+      ScrollTrigger.refresh();
+    }
+  });
+</script>

@@ -1,16 +1,557 @@
 ---
-
+import HorizontalScroll from "../components/HorizontalScroll.astro";
+import { Image } from "astro:assets";
+import psLogo from "../assets/penn-state-logo.png";
+import vmLogo from "../assets/vm-logo.png";
+import chqLogo from "../assets/chq-logo.png";
 ---
 
+<!doctype html>
 <html lang="en">
 	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<meta name="viewport" content="width=device-width" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro</title>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Joel Sander</title>
+
+		<link rel="preconnect" href="https://fonts.googleapis.com" />
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+		<link
+			href="https://fonts.googleapis.com/css2?family=Besley:ital,wght@0,400..900;1,400..900&display=swap"
+			rel="stylesheet"
+		/>
+
+		<style>
+			body,
+			html {
+				margin: 0;
+				padding: 0;
+				background-color: #000;
+				overflow-x: hidden;
+				/* Apply Besley globally */
+				font-family: "Besley", serif;
+			}
+
+			/* Glassmorphism Card Style */
+			.content-card {
+				background: rgba(255, 255, 255, 0.03);
+				backdrop-filter: blur(12px);
+				-webkit-backdrop-filter: blur(12px);
+				border: 1px solid rgba(255, 255, 255, 0.1);
+				padding: 4rem;
+				border-radius: 40px;
+				text-align: center;
+				max-width: 600px;
+				box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+			}
+
+			h1 {
+				font-size: clamp(3rem, 8vw, 6rem);
+				font-weight: 800;
+				margin: 0;
+				line-height: 1.1;
+				/* Green/Blue Gradient Text */
+				background: linear-gradient(to right, #00ff88, #00d4ff);
+				-webkit-background-clip: text;
+				-webkit-text-fill-color: transparent;
+			}
+
+			p {
+				color: rgba(255, 255, 255, 0.7);
+				font-size: 1.2rem;
+				margin-top: 1.5rem;
+				letter-spacing: 0.05em;
+				text-transform: uppercase;
+			}
+
+			/* Global Besley Styling */
+			.besley-bold {
+				font-family: "Besley", serif;
+				font-weight: 800;
+				color: white;
+			}
+
+			/* Title Section Styling */
+			.main-name {
+				font-size: clamp(5rem, 15vw, 10rem);
+				line-height: 0.9;
+				margin: 0;
+				text-align: center;
+			}
+			.scroll-hint {
+				font-size: 1rem;
+				opacity: 0.6;
+				margin-top: 2rem;
+			}
+
+			/* About Me Styling */
+			.about-container {
+				display: flex;
+				align-items: center;
+				gap: 4rem;
+				max-width: 900px;
+				padding: 2rem;
+			}
+			.profile-circle {
+				width: 200px;
+				height: 200px;
+				background: #ccc;
+				border-radius: 50%;
+				flex-shrink: 0;
+			}
+			.about-text p {
+				font-size: 1.4rem;
+				line-height: 1.6;
+				text-align: left;
+			}
+
+			/* Experience Styling */
+			.experience-container {
+				width: 90%;
+				max-width: 1000px;
+				display: flex;
+				flex-direction: column;
+				gap: 1.5rem;
+				/* Ensure it can scroll */
+				margin-top: 20vh; /* Start lower so it's not hidden initially, logic will handle scroll */
+				padding-bottom: 20vh;
+			}
+			.section-title {
+				font-size: 2rem;
+				margin-bottom: 1rem;
+				align-self: flex-start;
+			}
+			.exp-card {
+				background: rgba(255, 255, 255, 0.03);
+				backdrop-filter: blur(10px);
+				border: 1px solid rgba(255, 255, 255, 0.1);
+				padding: 2rem;
+				border-radius: 12px;
+				flex-direction: column;
+				align-items: flex-start;
+				gap: 1rem;
+			}
+			.exp-top-row {
+				width: 100%;
+				display: flex;
+				justify-content: space-between;
+				align-items: center;
+			}
+			.exp-header {
+				display: flex;
+				align-items: center;
+				gap: 1.5rem;
+			}
+			.company-logo {
+				width: 60px;
+				height: 40px;
+				object-fit: contain;
+			}
+			.company {
+				font-size: 1.5rem;
+			}
+			.role {
+				font-size: 1.2rem;
+				opacity: 0.8;
+			}
+			.exp-description {
+				font-size: 1rem;
+				line-height: 1.5;
+				opacity: 0.9;
+				margin: 0;
+				text-align: left;
+				padding-left: 0.5rem;
+				border-left: 2px solid rgba(0, 255, 136, 0.3);
+			}
+			.exp-date {
+				font-size: 0.9rem;
+				opacity: 0.7;
+				margin: 0.2rem 0 0.5rem 0;
+				font-style: italic;
+			}
+			.exp-list {
+				margin: 0.5rem 0 0 0;
+				padding-left: 1.2rem;
+				opacity: 0.9;
+				font-size: 1rem;
+				line-height: 1.4;
+			}
+			.exp-list li {
+				margin-bottom: 0.4rem;
+			}
+
+			/* Utility */
+			.center {
+				display: flex;
+				flex-direction: column;
+				align-items: center;
+			}
+			.sticky-top {
+				align-items: flex-start !important; /* Override default center */
+			}
+
+			/* Projects & Links Styling */
+			.projects-links-container {
+				width: 90%;
+				max-width: 1000px;
+				display: flex;
+				flex-direction: column;
+				gap: 2rem;
+				align-items: center;
+			}
+			.projects-grid {
+				display: grid;
+				grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+				gap: 1.5rem;
+				width: 100%;
+			}
+			.project-card {
+				background: rgba(255, 255, 255, 0.03);
+				backdrop-filter: blur(10px);
+				border: 1px solid rgba(255, 255, 255, 0.1);
+				padding: 2rem;
+				border-radius: 12px;
+				text-decoration: none;
+				color: white;
+				transition:
+					transform 0.3s ease,
+					border-color 0.3s ease,
+					background 0.3s ease;
+				display: flex;
+				flex-direction: column;
+				gap: 1rem;
+				text-align: left;
+			}
+			.project-card:hover {
+				transform: translateY(-5px);
+				border-color: #00ff88;
+				background: rgba(255, 255, 255, 0.08);
+			}
+			.project-header h3 {
+				margin: 0;
+				font-size: 1.5rem;
+				color: #00ff88;
+			}
+			.project-desc {
+				font-size: 1rem;
+				opacity: 0.8;
+				margin: 0;
+				line-height: 1.4;
+				text-transform: none; /* Override global p styling */
+			}
+			.tech-stack {
+				display: flex;
+				gap: 0.5rem;
+				flex-wrap: wrap;
+				margin-top: auto;
+			}
+			.tech-tag {
+				background: rgba(255, 255, 255, 0.1);
+				padding: 0.2rem 0.6rem;
+				border-radius: 12px;
+				font-size: 0.8rem;
+				opacity: 0.9;
+			}
+			.quick-links {
+				display: flex;
+				gap: 2rem;
+				margin-top: 2rem;
+			}
+			.link-btn {
+				padding: 1rem 2rem;
+				background: rgba(255, 255, 255, 0.03);
+				backdrop-filter: blur(10px);
+				border: 1px solid rgba(255, 255, 255, 0.1);
+				color: white;
+				text-decoration: none;
+				font-weight: 800;
+				border-radius: 12px;
+				transition:
+					transform 0.2s ease,
+					background 0.2s ease,
+					border-color 0.2s ease;
+				font-size: 1.2rem;
+			}
+			.link-btn:hover {
+				transform: translateY(-3px);
+				background: rgba(255, 255, 255, 0.08);
+				border-color: #00ff88;
+			}
+		</style>
 	</head>
 	<body>
-		<h1>Astro</h1>
+		<HorizontalScroll>
+			<section class="scroll-section">
+				<div class="content-wrapper center">
+					<h1 class="besley-bold main-name">JOEL</h1>
+					<h1 class="besley-bold main-name">SANDER</h1>
+					<p class="scroll-hint besley-bold">Scroll for more...</p>
+				</div>
+			</section>
+
+			<section class="scroll-section">
+				<div class="about-container">
+					<div class="profile-circle"></div>
+					<div class="about-text">
+						<p class="besley-bold">
+							I am a Computer Science student at Pennsylvania
+							State University with a focus on AI engineering and
+							software development. I am passionate about building
+							intelligent systems and efficient tools that bridge
+							the gap between complex technology and practical
+							solutions.
+						</p>
+					</div>
+				</div>
+			</section>
+
+			<section class="scroll-section sticky-top">
+				<div class="experience-container scrollable-content">
+					<h2 class="besley-bold section-title">Education</h2>
+					<div class="exp-card">
+						<div class="exp-top-row">
+							<div class="exp-header">
+								<Image
+									src={psLogo}
+									alt="Penn State Logo"
+									class="company-logo"
+								/>
+								<span class="besley-bold company"
+									>The Pennsylvania State University</span
+								>
+							</div>
+							<span class="besley-bold role"
+								>Computer Science</span
+							>
+						</div>
+						<p class="exp-description besley-bold">
+							Erie, PA <br />
+							Bachelor of Science in Computer Science <br />
+							Biology Minor <br />
+							GPA: 3.9 | Graduation: May 2026
+						</p>
+					</div>
+
+					<h2 class="besley-bold section-title">Experience</h2>
+
+					<div class="exp-card">
+						<div class="exp-top-row">
+							<div class="exp-header">
+								<Image
+									src={vmLogo}
+									alt="Value Momentum Logo"
+									class="company-logo"
+								/>
+								<span class="besley-bold company"
+									>ValueMomentum Inc.</span
+								>
+							</div>
+							<span class="besley-bold role"
+								>AI Software Engineering Intern</span
+							>
+						</div>
+						<p class="exp-date besley-bold">
+							June 2025 – August 2025
+						</p>
+						<ul class="exp-list besley-bold">
+							<li>
+								Developed 3 AI proof of concepts for P&C
+								insurance clients to automate high-volume manual
+								tasks
+							</li>
+							<li>
+								Presented prototypes to senior stakeholders,
+								securing internal approval for 3 additional
+								projects
+							</li>
+							<li>
+								Engineered a GitHub AI agent to assist in
+								single-issue ticket resolution
+							</li>
+							<li>
+								Reduced ticket resolution time by approximately
+								50%
+							</li>
+							<li>
+								Managed pull requests from co-interns to
+								maintain high codebase quality
+							</li>
+							<li>
+								Assessed and operationalized Langfuse for NAIC
+								compliance tracking of AI Agents
+							</li>
+						</ul>
+					</div>
+
+					<div class="exp-card">
+						<div class="exp-top-row">
+							<div class="exp-header">
+								<Image
+									src={chqLogo}
+									alt="Chautauqua Institution Logo"
+									class="company-logo"
+								/>
+								<span class="besley-bold company"
+									>Chautauqua Institution</span
+								>
+							</div>
+							<span class="besley-bold role"
+								>Software Engineering Intern</span
+							>
+						</div>
+						<p class="exp-date besley-bold">
+							May 2024 – August 2024
+						</p>
+						<ul class="exp-list besley-bold">
+							<li>
+								Designed and implemented an internal tool to
+								manage sub-domain redirects using a Django
+								backend
+							</li>
+							<li>
+								Automated DNS record management via the
+								Cloudflare REST API
+							</li>
+							<li>
+								Deployed applications with Docker and
+								DigitalOcean
+							</li>
+							<li>Integrated a CI/CD pipeline in GitLab</li>
+							<li>
+								Implemented unit and integration tests with over
+								95% codebase coverage
+							</li>
+						</ul>
+					</div>
+
+					<div class="exp-card">
+						<div class="exp-top-row">
+							<div class="exp-header">
+								<Image
+									src={chqLogo}
+									alt="Chautauqua Institution Logo"
+									class="company-logo"
+								/>
+								<span class="besley-bold company"
+									>Chautauqua Institution</span
+								>
+							</div>
+							<span class="besley-bold role"
+								>Information Technology Intern</span
+							>
+						</div>
+						<p class="exp-date besley-bold">
+							May 2023 – August 2023
+						</p>
+						<ul class="exp-list besley-bold">
+							<li>
+								Resolved complex network and POS system issues
+							</li>
+							<li>
+								Diagnosed and fixed software problems in
+								Vivaticket BOS
+							</li>
+							<li>
+								Conducted IT inventory audits to ensure 100%
+								data accuracy across the company
+							</li>
+						</ul>
+					</div>
+				</div>
+			</section>
+
+			<section class="scroll-section">
+				<div class="projects-links-container">
+					<h2 class="besley-bold section-title">Projects</h2>
+					<div class="projects-grid">
+						<a
+							href="https://github.com/jdsander04/mom"
+							target="_blank"
+							class="project-card besley-bold"
+						>
+							<div class="project-header">
+								<h3>AI Powered Recipe Manager</h3>
+							</div>
+							<p class="project-desc">
+								A recipe manager built with Django, Vite, and
+								TypeScript. Features AI-powered recipe OCR and
+								ingredient analysis.
+							</p>
+							<div class="tech-stack">
+								<span class="tech-tag">Django</span>
+								<span class="tech-tag">Vite</span>
+								<span class="tech-tag">TypeScript</span>
+								<span class="tech-tag">REST API</span>
+								<span class="tech-tag">React</span>
+								<span class="tech-tag">PostgreSQL</span>
+								<span class="tech-tag">Docker</span>
+							</div>
+						</a>
+
+						<a
+							href="https://github.com/jds6935/PSU-Hackathon-Team-12"
+							target="_blank"
+							class="project-card besley-bold"
+						>
+							<div class="project-header">
+								<h3>WolfPack - Social Fitness Tracker</h3>
+							</div>
+							<p class="project-desc">
+								A gamified fitness tracking application
+								combining workout logging with a wolf-themed
+								ranking system. Features include Pack social
+								groups, streak tracking, and chart
+								visualizations.
+							</p>
+							<div class="tech-stack">
+								<span class="tech-tag">React</span>
+								<span class="tech-tag">TypeScript</span>
+								<span class="tech-tag">Vite</span>
+								<span class="tech-tag">Supabase</span>
+								<span class="tech-tag">Tailwind CSS</span>
+								<span class="tech-tag">React Query</span>
+							</div>
+						</a>
+
+						<a href="#" class="project-card besley-bold">
+							<div class="project-header">
+								<h3>Internal Redirect Tool</h3>
+							</div>
+							<p class="project-desc">
+								Django-based tool for managing sub-domain
+								redirects with automated DNS record management
+								via Cloudflare API.
+							</p>
+							<div class="tech-stack">
+								<span class="tech-tag">Django</span>
+								<span class="tech-tag">Docker</span>
+								<span class="tech-tag">Cloudflare API</span>
+							</div>
+						</a>
+					</div>
+
+					<h2
+						class="besley-bold section-title"
+						style="margin-top: 2rem;"
+					>
+						Quick Links
+					</h2>
+					<div class="quick-links besley-bold">
+						<a
+							href="https://github.com/jdsander04/"
+							target="_blank"
+							class="link-btn">GitHub</a
+						>
+						<a
+							href="https://www.linkedin.com/in/joel-sander-138b04201/"
+							target="_blank"
+							class="link-btn">LinkedIn</a
+						>
+						<a href="mailto:jdsander04@gmail.com" class="link-btn"
+							>Email</a
+						>
+					</div>
+				</div>
+			</section>
+		</HorizontalScroll>
 	</body>
 </html>
