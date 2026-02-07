@@ -4,6 +4,7 @@ import { Image } from "astro:assets";
 import psLogo from "../assets/penn-state-logo.png";
 import vmLogo from "../assets/vm-logo.png";
 import chqLogo from "../assets/chq-logo.png";
+import profilePic from "../assets/Joel_Sander_Headshot.jpg";
 ---
 
 <!doctype html>
@@ -94,9 +95,10 @@ import chqLogo from "../assets/chq-logo.png";
 			.profile-circle {
 				width: 200px;
 				height: 200px;
-				background: #ccc;
 				border-radius: 50%;
 				flex-shrink: 0;
+				object-fit: cover;
+				object-position: center;
 			}
 			.about-text p {
 				font-size: 1.4rem;
@@ -290,7 +292,11 @@ import chqLogo from "../assets/chq-logo.png";
 
 			<section class="scroll-section">
 				<div class="about-container">
-					<div class="profile-circle"></div>
+					<Image
+						src={profilePic}
+						alt="Joel Sander"
+						class="profile-circle"
+					/>
 					<div class="about-text">
 						<p class="besley-bold">
 							I am a Computer Science student at Pennsylvania
